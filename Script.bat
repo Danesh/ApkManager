@@ -8,11 +8,14 @@ echo ^|%date% -- %time%^| >> log.txt
 echo -------------------------------------------------------------------------- >> log.txt
 Script 0 2>> log.txt
 :skipme
-mode con:cols=81 lines=40
+mode con:cols=81 lines=43
 :skipme
 set usrc=9
+set dec=0
 set capp=None
 set heapy=64
+set ver=1
+set jar=0
 java -version 
 if errorlevel 1 goto errjava
 adb version 
@@ -25,9 +28,14 @@ set tmpstore=%%~nF%%~xF
 if %count%==1 (set capp=%tmpstore%)
 cls
 :restart
+if %dec%==0 (set decs=Sources and Resources)
+if %dec%==1 (set decs=Sources)
+if %dec%==2 (set decs=Resources)
 cd "%~dp0"
 set menunr=GARBAGE
 cls
+echo %jar%
+echo  ^| Decompile : %decs%             
 echo  ------------------------------------------------------------------------------
 echo  ^| Compression-Level: %usrc% ^| Heap Size: %heapy%mb ^| Current-App: %capp% ^|
 echo  ------------------------------------------------------------------------------
@@ -64,7 +72,9 @@ echo  20   Set Max Memory Size (Only use if getting stuck at decompiling/compili
 echo  21   Read Log
 echo  22   Set current project
 echo  23   About / Tips / Debug Section
-echo  24   Quit
+echo  24   Update tools
+echo  25   Switch compile mode
+echo  26   Quit
 echo  -------------------------------------------------------------------------------
 SET /P menunr=Please make your decision:
 IF %menunr%==0 (goto ap)
@@ -76,7 +86,9 @@ IF %menunr%==20 (goto heap)
 IF %menunr%==21 (goto logr)
 IF %menunr%==22 (goto filesel)
 IF %menunr%==23 (goto about)
-IF %menunr%==24 (goto quit)
+IF %menunr%==24 (goto update)
+IF %menunr%==25 (goto switchc)
+IF %menunr%==26 (goto quit)
 IF %menunr%==18 (goto cleanp)
 if %capp%==None goto noproj
 IF %menunr%==1 (goto ex)
@@ -96,6 +108,27 @@ IF %menunr%==14 (goto all)
 :WHAT
 echo You went crazy and entered something that wasnt part of the menu options
 PAUSE
+goto restart
+:switchc
+set /a dec+=1 
+if (%dec%)==(3) (set /a dec=0)
+goto restart
+:update
+cd other
+IF EXIST ApkManagerTools.zip del ApkManagerTools.zip
+echo Syncing Tools/Script....
+IF NOT EXIST ApkManagerTools.zip (
+wget http://dl.dropbox.com/u/14513610/ApkManager/ApkManagerTools.zip
+)
+7za x -y -o"./" "ApkManagerTools.zip"
+del ApkManagerTools.zip
+set /a tmp = %ver%
+set /a tmp+=1
+IF EXIST Script%tmp%.bat (
+move Script%tmp%.bat Script.bat
+Start cmd /c "Updating Script" signer 3
+exit
+)
 goto restart
 :cleanp
 echo 1. Clean This Project's Folder
@@ -155,15 +188,9 @@ mkdir projects
 goto restart
 :about
 cls
-echo About
-echo -----
-echo Apk Manager v4.9
-echo ApkTool v1.3.2
-echo 7za v4.6.5
-echo Roptipng v0.6.3
-echo Sox v14.3.1
-echo Android Asset Packaging Tool v0.2
-echo.
+echo Version
+echo -------
+type other\version.txt
 echo Tips
 echo ----
 echo 1. If Modifying system apps, never resign them unless you want to resign all
@@ -186,7 +213,8 @@ echo follow these steps :
 echo 1. Connect ur phone to ur pc
 echo 2. Push/install the app on your phone
 echo 3. Select "Create Log" option on this menu
-echo 4. Let the new window run for 10 seconds, then close it
+echo 4. Run the app on your phone
+echo 5. Let the new window run for 10 seconds, then close it
 echo Once done, you will find a adblog.txt in the root folder
 echo Upload that as well.
 echo.
@@ -202,7 +230,7 @@ echo Ok, lets try looking through for any shared uid, if i find any i will remov
 :filesel
 cls
 set /A count=0
-FOR %%F IN (place-apk-here-for-modding/*.apk) DO (
+FOR %%F IN (place-apk-here-for-modding/*) DO (
 set /A count+=1
 set a!count!=%%F
 if /I !count! LEQ 9 (echo ^- !count!  - %%F )
@@ -214,6 +242,9 @@ set /P INPUT=Enter It's Number: %=%
 if /I %INPUT% GTR !count! (goto chc)
 if /I %INPUT% LSS 1 (goto chc)
 set capp=!a%INPUT%!
+set jar=0
+set ext=jar
+IF "!capp:%ext%=!" NEQ "%capp%" set jar=1
 goto restart
 :chc
 set capp=None
@@ -393,6 +424,7 @@ PAUSE
 )
 goto restart
 :zipa
+cd other
 echo Zipaligning Apk
 IF EXIST "%~dp0place-apk-here-for-modding\signed%capp%" zipalign -f 4 "%~dp0place-apk-here-for-modding\signed%capp%" "%~dp0place-apk-here-for-modding\signedaligned%capp%"
 
@@ -476,7 +508,11 @@ DEL /Q "../place-apk-here-for-modding/signed%capp%"
 DEL /Q "../place-apk-here-for-modding/unsigned%capp%"
 IF EXIST "../projects/%capp%" (rmdir /S /Q "../projects/%capp%")
 echo Decompiling Apk
-java -Xmx%heapy%m -jar apktool.jar d "../place-apk-here-for-modding/%capp%" "../projects/%capp%"
+if (%dec%)==(0) (set ta=)
+if (%dec%)==(1) (set ta=-r)
+if (%dec%)==(2) (set ta=-s)
+if (%jar%)==(1) (set ta=-r)
+java -Xmx%heapy%m -jar apktool.jar d %ta% "../place-apk-here-for-modding/%capp%" "../projects/%capp%"
 if errorlevel 1 (
 echo "An Error Occured, Please Check The Log (option 21)"
 PAUSE
@@ -489,9 +525,16 @@ cd other
 echo Building Apk
 IF EXIST "%~dp0place-apk-here-for-modding\unsigned%capp%" (del /Q "%~dp0place-apk-here-for-modding\unsigned%capp%")
 java -Xmx%heapy%m -jar apktool.jar b "../projects/%capp%" "%~dp0place-apk-here-for-modding\unsigned%capp%"
+if (%jar%)==(0) (goto :nojar)
+7za x -o"../projects/temp" "../place-apk-here-for-modding/%capp%" META-INF -r
+7za a -tzip "../place-apk-here-for-modding/unsigned%capp%" "../projects/temp/*" -mx%usrc% -r
+rmdir /S /Q "%~dp0projects/temp"
+goto restart
+:nojar
 if errorlevel 1 (
 echo "An Error Occured, Please Check The Log (option 21)"
 PAUSE
+goto restart
 )
 echo Is this a system apk ^(y/n^)
 set /P INPU=Type input: %=%
