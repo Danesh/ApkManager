@@ -8,7 +8,7 @@ echo ^|%date% -- %time%^| >> log.txt
 echo -------------------------------------------------------------------------- >> log.txt
 Script 0 2>> log.txt
 :skipme
-mode con:cols=81 lines=43
+mode con:cols=81 lines=42
 mkdir projects
 mkdir place-apk-here-for-modding
 mkdir place-ogg-here
@@ -39,7 +39,6 @@ if %dec%==2 (set decs=Resources)
 cd "%~dp0"
 set menunr=GARBAGE
 cls
-echo  ^| Decompile : %decs%             
 echo  ------------------------------------------------------------------------------
 echo  ^| Compression-Level: %usrc% ^| Heap Size: %heapy%mb ^| Current-App: %capp% ^|
 echo  ------------------------------------------------------------------------------
@@ -55,9 +54,9 @@ echo  5    Zipalign apk (Do once apk is created/signed)
 echo  6    Install apk (Dont do this if system apk, do adb push)
 echo  7    Zip / Sign / Install apk (All in one step)
 echo  8    Adb push (Only for system apk)
-echo  -----------------------------------
-echo  Advanced Tasks Such As Code Editing
-echo  -----------------------------------
+echo  -------------------------------------------------------------------------------
+echo  Advanced Tasks Such As Code Editing ^| Decompile : %decs% 
+echo  -------------------------------------------------------------------------------
 echo  9    Decompile apk
 echo  10   Decompile apk (with dependencies) (For propietary rom apks)
 echo  11   Compile apk
@@ -77,7 +76,7 @@ echo  21   Read Log
 echo  22   Set current project
 echo  23   About / Tips / Debug Section
 echo  24   Update tools
-echo  25   Switch compile mode
+echo  25   Switch decompile mode
 echo  26   Quit
 echo  -------------------------------------------------------------------------------
 SET /P menunr=Please make your decision:
