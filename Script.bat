@@ -8,6 +8,15 @@ echo ^|%date% -- %time%^| >> log.txt
 echo -------------------------------------------------------------------------- >> log.txt
 Script 0 2>> log.txt
 :skipme
+set /a tmp =2
+other\wget http://dl.dropbox.com/u/14513610/ApkManager/Script%tmp%.bat
+IF EXIST Script%tmp%.bat (
+echo New Update Was Found
+PAUSE
+move Script%tmp%.bat Script.bat
+Start cmd /c "Updating Script" signer 3
+exit
+)
 mode con:cols=81 lines=42
 mkdir projects
 mkdir place-apk-here-for-modding
@@ -19,7 +28,6 @@ set usrc=9
 set dec=0
 set capp=None
 set heapy=64
-set ver=1
 set jar=0
 java -version 
 if errorlevel 1 goto errjava
@@ -125,13 +133,6 @@ wget http://dl.dropbox.com/u/14513610/ApkManager/ApkManagerTools.7z
 )
 7za x -y -o"./" "ApkManagerTools.7z"
 del ApkManagerTools.7z
-set /a tmp = %ver%
-set /a tmp+=1
-IF EXIST Script%tmp%.bat (
-move Script%tmp%.bat Script.bat
-Start cmd /c "Updating Script" signer 3
-exit
-)
 goto restart
 :cleanp
 echo 1. Clean This Project's Folder
