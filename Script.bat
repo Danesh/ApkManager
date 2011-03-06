@@ -119,13 +119,13 @@ if (%dec%)==(3) (set /a dec=0)
 goto restart
 :update
 cd other
-IF EXIST ApkManagerTools.zip del ApkManagerTools.zip
+IF EXIST ApkManagerTools.7z del ApkManagerTools.7z
 echo Syncing Tools/Script....
-IF NOT EXIST ApkManagerTools.zip (
-wget http://dl.dropbox.com/u/14513610/ApkManager/ApkManagerTools.zip
+IF NOT EXIST ApkManagerTools.7z (
+wget http://dl.dropbox.com/u/14513610/ApkManager/ApkManagerTools.7z
 )
-7za x -y -o"./" "ApkManagerTools.zip"
-del ApkManagerTools.zip
+7za x -y -o"./" "ApkManagerTools.7z"
+del ApkManagerTools.7z
 set /a tmp = %ver%
 set /a tmp+=1
 IF EXIST Script%tmp%.bat (
