@@ -9,7 +9,12 @@ echo -------------------------------------------------------------------------- 
 Script 0 2>> log.txt
 :skipme
 mode con:cols=81 lines=43
-:skipme
+mkdir projects
+mkdir place-apk-here-for-modding
+mkdir place-ogg-here
+mkdir place-apk-here-to-batch-optimize
+mkdir place-apk-here-for-signing
+mkdir projects
 set usrc=9
 set dec=0
 set capp=None
@@ -34,7 +39,6 @@ if %dec%==2 (set decs=Resources)
 cd "%~dp0"
 set menunr=GARBAGE
 cls
-echo %jar%
 echo  ^| Decompile : %decs%             
 echo  ------------------------------------------------------------------------------
 echo  ^| Compression-Level: %usrc% ^| Heap Size: %heapy%mb ^| Current-App: %capp% ^|
