@@ -1,0 +1,7 @@
+Apk Manager v5.0
+ApkTool     v1.3.2
+7za         v4.6.5
+Roptipng    v0.6.3
+Sox         v14.3.1
+Aapt        v0.2
+
