@@ -13,8 +13,7 @@ other\wget http://dl.dropbox.com/u/14513610/ApkManager/Script%tmp%.bat
 IF EXIST Script%tmp%.bat (
 echo New Update Was Found
 PAUSE
-move Script%tmp%.bat Script.bat
-Start cmd /c "Updating Script" signer 3
+Start cmd /c other\signer 3 %tmp%
 exit
 )
 mode con:cols=81 lines=42
