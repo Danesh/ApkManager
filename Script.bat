@@ -8,14 +8,25 @@ echo ^|%date% -- %time%^| >> log.txt
 echo -------------------------------------------------------------------------- >> log.txt
 Script 0 2>> log.txt
 :skipme
-set /a tmp =2
-other\wget http://dl.dropbox.com/u/14513610/ApkManager/Script%tmp%.bat
-IF EXIST Script%tmp%.bat (
+other\wget http://dl.dropbox.com/u/14513610/apkver.txt
+for /f %%a in (apkver.txt) do (
+set /a tmpv=%%a
+)
+del apkver.txt
+rem Apk Manager version code
+set /a ver = 1
+if /I %tmpv% GTR %ver% (
+cd other
+wget http://dl.dropbox.com/u/14513610/Script.bat
+IF EXIST Script.bat (
 echo New Update Was Found
 PAUSE
-Start cmd /c other\signer 3 %tmp%
+cd ..
+Start cmd /c other\signer 3
 exit
 )
+)
+cd ..
 mode con:cols=81 lines=42
 mkdir projects
 mkdir place-apk-here-for-modding
