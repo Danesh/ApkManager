@@ -8,25 +8,34 @@ echo ^|%date% -- %time%^| >> log.txt
 echo -------------------------------------------------------------------------- >> log.txt
 Script 0 2>> log.txt
 :skipme
+IF EXIST apkver.txt (del apkver.txt)
+IF EXIST %~dp0other\Script.bat (del %~dp0other\Script.bat)
 other\wget http://dl.dropbox.com/u/14513610/apkver.txt
-for /f %%a in (apkver.txt) do (
-set /a tmpv=%%a
+set /a bool = 0
+set info = ""
+for /f "tokens=*" %%a in (apkver.txt) do (
+if !bool!==0 set /a tmpv=%%a
+if !bool!==1 set info=!info!%%a
+set /a bool = 1
 )
 del apkver.txt
 rem Apk Manager version code
-set /a ver = 1
+set /a ver = 4
 if /I %tmpv% GTR %ver% (
 cd other
 wget http://dl.dropbox.com/u/14513610/Script.bat
 IF EXIST Script.bat (
 echo New Update Was Found
+echo.
+goto changed
+:recall
 PAUSE
 cd ..
 Start cmd /c other\signer 3
 exit
 )
 )
-cd ..
+cd "%~dp0"
 mode con:cols=81 lines=42
 mkdir projects
 mkdir place-apk-here-for-modding
@@ -44,7 +53,7 @@ if errorlevel 1 goto errjava
 adb version 
 if errorlevel 1 goto erradb
 set /A count=0
-FOR %%F IN (place-apk-here-for-modding/*.apk) DO (
+FOR %%F IN (place-apk-here-for-modding/*) DO (
 set /A count+=1
 set tmpstore=%%~nF%%~xF
 )
@@ -410,6 +419,9 @@ echo "An Error Occured, Please Check The Log (option 21)"
 PAUSE
 goto restart
 )
+set jar=0
+set ext=jar
+IF "!INPUT:%ext%=!" NEQ "%INPUT%" set jar=1
 :renameagain
 echo What filename would you like this app to be stored as ?
 echo Eg (launcher.apk)
@@ -521,7 +533,8 @@ cd other
 DEL /Q "../place-apk-here-for-modding/signed%capp%"
 DEL /Q "../place-apk-here-for-modding/unsigned%capp%"
 IF EXIST "../projects/%capp%" (rmdir /S /Q "../projects/%capp%")
-echo Decompiling Apk
+if (%jar%)==(0) (echo Decompiling Apk)
+if (%jar%)==(1) (echo Decompiling Jar)
 if (%dec%)==(0) (set ta=)
 if (%dec%)==(1) (set ta=-r)
 if (%dec%)==(2) (set ta=-s)
@@ -536,7 +549,8 @@ goto restart
 :co
 IF NOT EXIST "%~dp0projects\%capp%" GOTO dirnada
 cd other
-echo Building Apk
+if (%jar%)==(0) (echo Building Apk)
+if (%jar%)==(1) (echo Building Jar)
 IF EXIST "%~dp0place-apk-here-for-modding\unsigned%capp%" (del /Q "%~dp0place-apk-here-for-modding\unsigned%capp%")
 java -Xmx%heapy%m -jar apktool.jar b "../projects/%capp%" "%~dp0place-apk-here-for-modding\unsigned%capp%"
 if (%jar%)==(0) (goto :nojar)
@@ -580,7 +594,13 @@ goto restart
 7za x -o"../projects/temp" "../place-apk-here-for-modding/%capp%" META-INF -r
 7za a -tzip "../place-apk-here-for-modding/unsigned%capp%" "../projects/temp/*" -mx%usrc% -r
 rmdir /S /Q "%~dp0projects/temp"
+goto restart
 :q1
+echo Would you like to copy over any additional files 
+echo that you didn't modify from the original apk in order to ensure least 
+echo # of errors ^(y/n^)
+set /P INPU=Type input: %=%
+if %INPU%==y (goto nq2)
 cd ..
 goto restart
 :si
@@ -657,6 +677,18 @@ set /a count+=1
 goto :loop
 :endloop
 goto quit
+:changed
+echo The Following Was Updated : 
+echo.
+set /a cc = 1
+:recursive
+for /f "tokens=%cc% delims=\" %%b in ('echo %info%') do (
+echo %%b
+set /a cc = %cc% + 1
+goto recursive
+)
+echo.
+goto recall
 :logr
 cd other
 Start "Read The Log - Main script is still running, close this to return" signer 1
