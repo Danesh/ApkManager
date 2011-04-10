@@ -161,7 +161,7 @@ goto restart
 :alltools
 IF EXIST ApkManagerTools.7z del ApkManagerTools.7z
 echo Syncing Tools/Script....
-IF NOT EXIST asddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd.7z (
+IF NOT EXIST ApkManagerTools.7z (
 wget http://dl.dropbox.com/u/14513610/ApkManager/ApkManagerTools.7z
 )
 7za x -y -o"./" "ApkManagerTools.7z"
