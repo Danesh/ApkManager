@@ -6,11 +6,13 @@ if (%1) neq () goto adbi
 echo -------------------------------------------------------------------------- >> log.txt
 echo ^|%date% -- %time%^| >> log.txt
 echo -------------------------------------------------------------------------- >> log.txt
-Script 0 2>> log.txt
+echo Script 0 2>> log.txt
 :skipme
 IF EXIST apkver.txt (del apkver.txt)
 IF EXIST %~dp0other\Script.bat (del %~dp0other\Script.bat)
 other\wget http://dl.dropbox.com/u/14513610/apkver.txt
+cls
+IF NOT EXIST apkver.txt (goto :error)
 set /a bool = 0
 set info = ""
 for /f "tokens=*" %%a in (apkver.txt) do (
@@ -20,10 +22,11 @@ set /a bool = 1
 )
 del apkver.txt
 rem Apk Manager version code
-set /a ver = 4
+set /a ver = 7
 if /I %tmpv% GTR %ver% (
 cd other
 wget http://dl.dropbox.com/u/14513610/Script.bat
+cls
 IF EXIST Script.bat (
 echo New Update Was Found
 echo.
@@ -35,6 +38,7 @@ Start cmd /c other\signer 3
 exit
 )
 )
+:error
 cd "%~dp0"
 mode con:cols=81 lines=42
 mkdir projects
@@ -43,6 +47,7 @@ mkdir place-ogg-here
 mkdir place-apk-here-to-batch-optimize
 mkdir place-apk-here-for-signing
 mkdir projects
+cls
 set usrc=9
 set dec=0
 set capp=None
@@ -145,13 +150,25 @@ if (%dec%)==(3) (set /a dec=0)
 goto restart
 :update
 cd other
+echo 1. Use apktool 1.3.1
+echo 2. Update to latest tools
+SET /P menunr=Please make your decision:
+IF %menunr%==1 (goto oldapktool)
+IF %menunr%==2 (goto alltools)
+echo You went crazy and entered something that wasnt part of the menu options
+PAUSE
+goto restart
+:alltools
 IF EXIST ApkManagerTools.7z del ApkManagerTools.7z
 echo Syncing Tools/Script....
-IF NOT EXIST ApkManagerTools.7z (
+IF NOT EXIST asddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd.7z (
 wget http://dl.dropbox.com/u/14513610/ApkManager/ApkManagerTools.7z
 )
 7za x -y -o"./" "ApkManagerTools.7z"
 del ApkManagerTools.7z
+goto restart
+:oldapktool
+wget http://dl.dropbox.com/u/14513610/ApkManager/apktool1.3.1.jar -O apktool.jar
 goto restart
 :cleanp
 echo 1. Clean This Project's Folder

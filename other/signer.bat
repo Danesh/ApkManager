@@ -20,6 +20,7 @@ echo Leave this open for 10s
 adb logcat >> adblog.txt
 :updater
 del Script.bat
-move other\Script.bat Script.bat
+cd other
+move Script.bat ../Script.bat
 goto quit
 :quit
